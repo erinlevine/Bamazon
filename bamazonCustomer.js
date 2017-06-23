@@ -21,39 +21,94 @@ connection.connect(function(err) {
   viewAll();
 });
 
-function viewAll() {
+
+
+ function viewAll() {
   console.log("Here are all of our products...\n");
   connection.query("SELECT * FROM products", function(err, res) {
     if (err) throw err;
-    // Loop through the results for just the product name. 
+    for(var i = 0; i < res.length; i++){
     // Pushing into product array. 
-    console.log(res);
-    askUnits();
+    	console.log(res[i].item_id + " " + res[i].product_name + " " + res[i].price + " " + res[i].stock_quantity);
+    }
+    questionOne();
   });
 }
+   
+ 
 
-var askUnits = function(){
-		inquirer.prompt([
-		{
-			type: "input",
-			message: "What product would you would like to buy?",
-			name: "response"
+ function questionOne(){
+ 	inquirer.prompt([
+    	{
+    		type: "input",
+    		message: "Select the number of the product you would you like to buy!",
+    		name: "selection"
+ 
+    	}
+    	
+    	]).then(function(answers) {
+			
+ 			connection.query("SELECT * FROM products WHERE item_id =?", [answers.selection], function(err, res) {
+		    if (err) throw err;
+		    console.log("Item details: ");
+		    console.log("Product name: " + res[0].product_name);
+		    console.log("Price: $" + res[0].price);
+		    console.log(res[0].stock_quantity + " left in stock.");
 
-		},
-		{
-			type: "input",
-			message: "How many units of the product would you like to buy?",
-			name: "response"
-		}
-		//Once we receive a response, this is executed. A basic if statement.
-		]).then(function(inqRes) {
-			if(answers.response >= res.items){ //I don't know the proper way to reference the database
-			console.log("Here you go! Enjoy!");
-			//Then remove the number in response from total items in stock
-		}
-			else{
-				console.log("Sorry! I don't have that many in stock!");
-			}
-		
-	});
-	}
+		    questionTwo(res);
+
+  
+    });
+ });
+ }
+
+ function questionTwo(res){
+ 	inquirer.prompt([
+    	{
+    		type: "input",
+    		message: "How many units would you like to buy?",
+    		name: "selection"
+ 
+    	}
+    	
+    	]).then(function(answers) {
+    		
+    		if(answers.selection < res[0].stock_quantity){
+    			console.log("Here you go! Enjoy!");
+    			var updatedStock = res[0].stock_quantity - answers.selection; 
+    			update(res, updatedStock);
+    		}
+    		else {
+    			
+    			console.log("Sorry! We don't have that many available!");
+    			viewAll();
+
+    		}
+
+    		
+    });
+  }
+
+  function update(res, updatedStock) {
+ 
+	  connection.query(
+	    "UPDATE products SET ? WHERE ?",
+	    [
+	      {
+	        stock_quantity: updatedStock
+	      },
+	      {
+	      	product_name: res[0].product_name
+	      }
+	     
+	    ],
+	    function(err, res) {
+	      console.log("Thanks! You rule!");
+	      connection.destroy();
+	      
+	    
+	    }
+	  );
+}
+
+
