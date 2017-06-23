@@ -17,6 +17,8 @@ CREATE TABLE products (
   stock_quantity INTEGER(200) NOT NULL
 );
 
+drop table products;
+
 INSERT INTO products (item_id, product_name, department_name, price, stock_quantity)
 VALUES (4472, "Ruby's Rockin' Rawhide", "Pet Supplies", 15, 10);
 
@@ -46,7 +48,14 @@ VALUES (9592, "Sam's Splendid Sandwich", "Grocery", 7, 3);
 
 SELECT * FROM products;
 
+select item_id, product_name, price from products;
 
+select * from products where id=1;
+
+select * from products where product_name like '%Rawh%';
+
+update products
+set 
 
 
 

@@ -1,6 +1,8 @@
 var mysql = require("mysql");
 var inquirer = require("inquirer");
 
+var productArray = [];
+
 var connection = mysql.createConnection({
   host: "localhost",
   port: 3306,
@@ -23,8 +25,10 @@ function viewAll() {
   console.log("Here are all of our products...\n");
   connection.query("SELECT * FROM products", function(err, res) {
     if (err) throw err;
-    // Log all results of the SELECT statement
+    // Loop through the results for just the product name. 
+    // Pushing into product array. 
     console.log(res);
+    askUnits();
   });
 }
 
@@ -32,7 +36,7 @@ var askUnits = function(){
 		inquirer.prompt([
 		{
 			type: "input",
-			message: "What is the ID of the product you would like to buy?",
+			message: "What product would you would like to buy?",
 			name: "response"
 
 		},
@@ -42,7 +46,7 @@ var askUnits = function(){
 			name: "response"
 		}
 		//Once we receive a response, this is executed. A basic if statement.
-		]).then(function(answers) {
+		]).then(function(inqRes) {
 			if(answers.response >= res.items){ //I don't know the proper way to reference the database
 			console.log("Here you go! Enjoy!");
 			//Then remove the number in response from total items in stock
@@ -53,4 +57,3 @@ var askUnits = function(){
 		
 	});
 	}
-}
